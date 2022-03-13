@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import App from '../App';
 import './Header.css';
 
 
 
-const Header = ({clickValue, getClickValue}) =>
+const Header = ({ getClickValue}) =>
 {
     const [layoutState,setLayoutState] = useState(false);
     const onClick = (e) =>
     {
-
         console.log(layoutState);
         getClickValue(layoutState);
         
@@ -19,7 +17,7 @@ const Header = ({clickValue, getClickValue}) =>
     return(
         <div className ='Head'>
             <button>navIcon</button>
-            <h1>This is 213124</h1>
+            <h1>This is   23</h1>
             <button onClick={onClick}>Click</button>
         </div>    
     )

@@ -1,8 +1,10 @@
 import Header from './Header';
 import Footer from './Footer';
+import Body from './Body';
 import React, { useState } from 'react';
+import './Layout.css';
 
-const Layout = ({mainLayout, subLayout}) =>
+const Layout = () =>
 {
     const [clickValue,setClickValue] = useState(true);
 
@@ -12,12 +14,9 @@ const Layout = ({mainLayout, subLayout}) =>
     }
 
     return (
-        <div>
-            <Header clickValue = {clickValue} getClickValue = {getClickValue}/>
-            <main>
-                {clickValue?mainLayout:subLayout}
-            </main>
-            
+        <div className='Layout'>
+            <Header getClickValue = {getClickValue}/>
+            <Body clickValue = {clickValue}/>        
             <Footer/>
         </div>
        

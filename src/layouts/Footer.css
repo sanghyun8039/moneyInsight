@@ -1,6 +1,5 @@
 .Footer{
     background-color: pink;
-    position : absolute;
+    position : relative;
     bottom : 0;
-    width:  56%;
 }

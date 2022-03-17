@@ -11,7 +11,7 @@ const SearchLayout = () =>
     const [sixMonthPrice,setSixMonthPrice] = useState([]);
     const [oneYearPrice,setOneYearPrice] = useState([]);
     
-    const today = new Date(2022,2,12);
+    const today = new Date();
 
     const diffOneMonth = new Date(today);
     const diffThreeMonth = new Date(today);

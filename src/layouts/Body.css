@@ -1,4 +1,6 @@
-.Body{
-    margin-left: 4% !important; 
-    margin-right: 4% !important; 
+.Body {
+  margin-left: 4% !important;
+  margin-right: 4% !important;
+  padding-bottom: 100px;
+  height: 100%;
 }

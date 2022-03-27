@@ -143,11 +143,6 @@ const MainLayout = ({ticker}) =>
       
     },[loading]);
 
-    useEffect(()=>
-    {
-      console.log(tClosePrice);
-    },[tClosePrice])
-
   // useEffect(()=>
   // {
   //   console.log(data);

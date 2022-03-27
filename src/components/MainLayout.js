@@ -6,7 +6,7 @@ import { useTable } from 'react-table';
 const MainLayout = ({ticker}) =>
 {
   const [tickerValue,setTickerValue]= useState([]);
-  const [tClosePrice,setTClosePrice] = useState(0);
+  const [tClosePrice,setTClosePrice] = useState([]);
   const [tPrice,setTPrice] = useState([]);
   const [loading,setLoading] = useState(false);
   const [oneMonthPrice,setOneMonthPrice] = useState([]);
@@ -37,6 +37,19 @@ const MainLayout = ({ticker}) =>
       return value[date.toISOString().split('T')[0]];
   }
 
+  const setTableRow = (tickerValue,todayPriceValue,oneYearValue,oneYearMomentomValue) =>
+  {
+    const setRow = 
+    {
+      ticker:tickerValue,
+      todayPrice:todayPriceValue,
+      oneYear:oneYearValue,
+      oneYearMomentom:oneYearMomentomValue
+    }
+
+    return setRow;
+  }
+
   const columns = React.useMemo(
     () => [
       {
@@ -64,6 +77,26 @@ const MainLayout = ({ticker}) =>
         accessor: (d) => d["5. volume"]
       },
     ],[]);
+
+    const headerCol = React.useMemo(
+      () => [
+        {
+          Header: "Ticker",
+          accessor: (d) => d["ticker"]
+        },
+        {
+          Header: "Today Price",
+          accessor: (d) => d["todayPrice"],
+        },
+        {
+          Header: "One Year",
+          accessor: (d) => d["oneYear"]
+        },
+        {
+          Header: "One Year Momentom",
+          accessor: (d) => d["oneYearMomentom"],
+        },
+      ],[]);
 
   // const getTickerValue = async() => 
   //   {
@@ -112,6 +145,7 @@ const MainLayout = ({ticker}) =>
         fetchData();   
         
     },[]);
+
     const setDataPrice = (tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice) =>
     {
       setPrices((currentValue) => [tPrice,...currentValue]);
@@ -120,22 +154,26 @@ const MainLayout = ({ticker}) =>
       setPrices((currentValue) => [sixMonthPrice,...currentValue]);
       setPrices((currentValue) => [oneYearPrice,...currentValue]);
     }
-  //   useEffect(()=> {
-  //     setPrices((currentValue) => [tPrice,...currentValue]);
-  //     setPrices((currentValue) => [oneMonthPrice,...currentValue]);
-  // },[oneMonthPrice]);
+
     
-    const setClosePrice = (today) =>
+    const setPrice = (today,diffOneYear) =>
     {
       let todayPrice = parseFloat(tickerValue[today.toISOString().split('T')[0]]['4. close']); 
-      setTClosePrice((currentValue) => currentValue = todayPrice);
+      let diffOneYearPrice = parseFloat(tickerValue[diffOneYear.toISOString().split('T')[0]]['4. close']); 
+      let oneYearMomentom = (diffOneYearPrice - todayPrice)/todayPrice * 1;
+      let spyValue = setTableRow('SPY',todayPrice,diffOneYearPrice,oneYearMomentom);
+      let xleValue = setTableRow('XLE',todayPrice,diffOneYearPrice,oneYearMomentom)
+      setTClosePrice((currentValue) =>[spyValue,...currentValue]);
+      setTClosePrice((currentValue) =>[xleValue,...currentValue]);
+      
+      //setTClosePrice((currentValue) => currentValue = todayPrice);
     }
 
     useEffect(()=>
     {
       if(loading)
       {      
-        setClosePrice(today); 
+        setPrice(today,diffOneYear); 
         //console.log(tClosePrice);
         console.log(tickerValue);
         setDataPrice(tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice);
@@ -149,15 +187,16 @@ const MainLayout = ({ticker}) =>
   // },[data]);
 
 
-  // useEffect(()=>
-  // {
-  //   console.log(tickerValue.then);
-  // },[tickerValue]);
+  useEffect(()=>
+  {
+    console.log(tClosePrice);
+  },[tClosePrice]);
 
   return (
     <>
       <div>
-        <Table columns={columns} data={data} />
+        {/* <Table columns={columns} data={data} /> */}
+        <Table columns={headerCol} data={tClosePrice} />
       </div>
     </>
   );

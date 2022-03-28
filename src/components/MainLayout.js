@@ -1,11 +1,11 @@
 import React, { useState,useEffect } from 'react';
 import Table from './Table.js';
-import { useTable } from 'react-table';
 
 
 const MainLayout = ({ticker}) =>
 {
   const [tickerValue,setTickerValue]= useState([]);
+  const [tanValue,setTANValue] = useState([]);
   const [tClosePrice,setTClosePrice] = useState([]);
   const [tPrice,setTPrice] = useState([]);
   const [loading,setLoading] = useState(false);
@@ -13,10 +13,12 @@ const MainLayout = ({ticker}) =>
   const [threeMonthPrice,setThreeMonthPrice] = useState([]);
   const [sixMonthPrice,setSixMonthPrice] = useState([]);
   const [oneYearPrice,setOneYearPrice] = useState([]);
-  const [data, setPrices] = useState([]);
-  
+  const tickerArray = ['SPY','XLE'];
+
+
+
   const today = new Date();
-  today.setDate(today.getDate() -2);
+  today.setDate(today.getDate() -3);
   const diffOneMonth = new Date(today);
   diffOneMonth.setMonth(today.getMonth() - 1);
   const diffThreeMonth = new Date(today);
@@ -115,24 +117,27 @@ const MainLayout = ({ticker}) =>
               ).json();
           setTickerValue(json["Time Series (Daily)"]); 
           
+          const tanPrice = await (
+            await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=XLE&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          ).json();
+
+          setTANValue(tanPrice["Time Series (Daily)"]);
           
           
           setTPrice(calcJsonValue(json["Time Series (Daily)"],today));
-          setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
+          //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
           setOneMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffOneMonth));
-          setOneMonthPrice(prevState => ({ ...prevState, '6. date' : diffOneMonth.toISOString().split('T')[0]}));
           setThreeMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffThreeMonth));
-          setThreeMonthPrice(prevState => ({ ...prevState, '6. date': diffThreeMonth.toISOString().split('T')[0]}));
           setSixMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffSixMonth));
-          setSixMonthPrice(prevState => ({ ...prevState, '6. date': diffSixMonth.toISOString().split('T')[0]}));
           setOneYearPrice(calcJsonValue(json["Time Series (Daily)"],diffOneYear));
-          setOneYearPrice(prevState => ({ ...prevState, '6. date': diffOneYear.toISOString().split('T')[0]}));
-          
-          
-          
-          
-          
-          
+
+          setTPrice(calcJsonValue(tanPrice["Time Series (Daily)"],today));
+          //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
+          setOneMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffOneMonth));
+          setThreeMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffThreeMonth));
+          setSixMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffSixMonth));
+          setOneYearPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffOneYear));
+
           setLoading(true);
           
           }
@@ -146,37 +151,79 @@ const MainLayout = ({ticker}) =>
         
     },[]);
 
-    const setDataPrice = (tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice) =>
-    {
-      setPrices((currentValue) => [tPrice,...currentValue]);
-      setPrices((currentValue) => [oneMonthPrice,...currentValue]);
-      setPrices((currentValue) => [threeMonthPrice,...currentValue]);
-      setPrices((currentValue) => [sixMonthPrice,...currentValue]);
-      setPrices((currentValue) => [oneYearPrice,...currentValue]);
-    }
+    // const setDataPrice = (tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice) =>
+    // {
+    //   setPrices((currentValue) => [tPrice,...currentValue]);
+    //   setPrices((currentValue) => [oneMonthPrice,...currentValue]);
+    //   setPrices((currentValue) => [threeMonthPrice,...currentValue]);
+    //   setPrices((currentValue) => [sixMonthPrice,...currentValue]);
+    //   setPrices((currentValue) => [oneYearPrice,...currentValue]);
+    // }
 
     
-    const setPrice = (today,diffOneYear) =>
-    {
-      let todayPrice = parseFloat(tickerValue[today.toISOString().split('T')[0]]['4. close']); 
-      let diffOneYearPrice = parseFloat(tickerValue[diffOneYear.toISOString().split('T')[0]]['4. close']); 
-      let oneYearMomentom = (diffOneYearPrice - todayPrice)/todayPrice * 1;
-      let spyValue = setTableRow('SPY',todayPrice,diffOneYearPrice,oneYearMomentom);
-      let xleValue = setTableRow('XLE',todayPrice,diffOneYearPrice,oneYearMomentom)
-      setTClosePrice((currentValue) =>[spyValue,...currentValue]);
-      setTClosePrice((currentValue) =>[xleValue,...currentValue]);
+    // const setPrice = (today,diffOneYear) =>
+    // {
+    //   let todaySPYPrice = parseFloat(tickerValue[today.toISOString().split('T')[0]]['4. close']); 
+    //   let diffSPYOneYearPrice = parseFloat(tickerValue[diffOneYear.toISOString().split('T')[0]]['4. close']); 
+
+    //   let todayTANPrice = parseFloat(tanValue[today.toISOString().split('T')[0]]['4. close']); 
+    //   let diffTANOneYearPrice = parseFloat(tanValue[diffOneYear.toISOString().split('T')[0]]['4. close']); 
+
+
+    //   let SPYoneYearMomentom = (diffSPYOneYearPrice - todaySPYPrice)/todaySPYPrice * 1;
+    //   let TANoneYearMomentom = (diffTANOneYearPrice - todayTANPrice)/todayTANPrice * 1;
       
-      //setTClosePrice((currentValue) => currentValue = todayPrice);
+    //   let spyValue = setTableRow('SPY',todaySPYPrice,diffSPYOneYearPrice,SPYoneYearMomentom);
+    //   let tanRowValue = setTableRow('TAN',todayTANPrice,diffTANOneYearPrice,TANoneYearMomentom)
+    //   setTClosePrice((currentValue) =>[spyValue,...currentValue]);
+    //   setTClosePrice((currentValue) =>[tanRowValue,...currentValue]);
+      
+    //   //setTClosePrice((currentValue) => currentValue = todayPrice);
+    // }
+
+    const setPrice = (tickerArray)=>
+    {
+      tickerArray.forEach((element) => {
+          setTClosePrice((currentValue) => [getTickerPriceValue(element),...currentValue]);       
+        });
     }
 
+    const getTickerPriceValue = (ticker) =>
+    {
+        let dailyPrice = getDailyPrice(ticker);
+        let todayPrice = parseFloat(dailyPrice[today.toISOString().split('T')[0]]['4. close']);
+        let diffOneYearPrice = parseFloat(dailyPrice[diffOneYear.toISOString().split('T')[0]]['4. close']);
+        let oneYearMomentom = ((todayPrice - diffOneYearPrice)/diffOneYearPrice * 1).toFixed(2);
+
+        return setTableRow(ticker,todayPrice,diffOneYearPrice,oneYearMomentom);
+    }
+
+    const getDailyPrice = (ticker) =>
+    {
+      switch(ticker)
+      {
+        case ('SPY'):
+          {
+            return tickerValue;
+          }
+          case ('XLE'):
+          {
+            return tanValue;
+          }
+          default :
+          {
+            return null;
+          }
+      }
+    }
     useEffect(()=>
     {
       if(loading)
       {      
-        setPrice(today,diffOneYear); 
+        setPrice(tickerArray); 
         //console.log(tClosePrice);
         console.log(tickerValue);
-        setDataPrice(tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice);
+        //setDataPrice(tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice);
       }
       
     },[loading]);

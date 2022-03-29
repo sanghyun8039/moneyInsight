@@ -7,12 +7,7 @@ const MainLayout = ({ticker}) =>
   const [tickerValue,setTickerValue]= useState([]);
   const [tanValue,setTANValue] = useState([]);
   const [tClosePrice,setTClosePrice] = useState([]);
-  const [tPrice,setTPrice] = useState([]);
   const [loading,setLoading] = useState(false);
-  const [oneMonthPrice,setOneMonthPrice] = useState([]);
-  const [threeMonthPrice,setThreeMonthPrice] = useState([]);
-  const [sixMonthPrice,setSixMonthPrice] = useState([]);
-  const [oneYearPrice,setOneYearPrice] = useState([]);
   const tickerArray = ['SPY','XLE'];
 
 
@@ -27,7 +22,7 @@ const MainLayout = ({ticker}) =>
   diffSixMonth.setMonth(today.getMonth() - 6);
   const diffOneYear = new Date(today);
   diffOneYear.setFullYear(today.getFullYear() - 1);
-  
+
   const calcJsonValue = (json,date) =>
   {
       const value = json;
@@ -39,64 +34,72 @@ const MainLayout = ({ticker}) =>
       return value[date.toISOString().split('T')[0]];
   }
 
-  const setTableRow = (tickerValue,todayPriceValue,oneYearValue,oneYearMomentomValue) =>
+  const setTableRow = (tickerValue,todayPriceValue,oneYearValue,oneYearMomentomValue,sixMonthValue,sixMonthMomentomValue
+    ,threeMonthValue,threeMonthMomentomValue,oneMonthValue,oneMonthMomentomValue,momentomScoreValue) =>
   {
     const setRow = 
     {
       ticker:tickerValue,
       todayPrice:todayPriceValue,
       oneYear:oneYearValue,
-      oneYearMomentom:oneYearMomentomValue
+      oneYearMomentom:oneYearMomentomValue,
+      sixMonth:sixMonthValue,
+      sixMonthMomentom:sixMonthMomentomValue,
+      threeMonth:threeMonthValue,
+      threeMonthMomentom:threeMonthMomentomValue,
+      oneMonth:oneMonthValue,
+      oneMonthMomentom:oneMonthMomentomValue,
+      momentomScore:momentomScoreValue,
     }
 
     return setRow;
   }
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Date",
-        accessor: (d) => d["6. date"]
-      },
-      {
-        Header: "Open",
-        accessor: (d) => d["1. open"],
-      },
-      {
-        Header: "High",
-        accessor: (d) => d["2. high"]
-      },
-      {
-        Header: "Low",
-        accessor: (d) => d["3. low"],
-      },
-      {
-        Header: "Close",
-        accessor: (d) => d["4. close"]
-      },
-      {
-        Header: "Volume",
-        accessor: (d) => d["5. volume"]
-      },
-    ],[]);
-
-    const headerCol = React.useMemo(
+      const headerCol = React.useMemo(
       () => [
         {
           Header: "Ticker",
           accessor: (d) => d["ticker"]
         },
         {
-          Header: "Today Price",
+          Header: "Today",
           accessor: (d) => d["todayPrice"],
         },
         {
-          Header: "One Year",
+          Header: "1Y",
           accessor: (d) => d["oneYear"]
         },
         {
-          Header: "One Year Momentom",
+          Header: "1Y M",
           accessor: (d) => d["oneYearMomentom"],
+        },
+        {
+          Header: "6M",
+          accessor: (d) => d["sixMonth"],
+        },
+        {
+          Header: "6M M",
+          accessor: (d) => d["sixMonthMomentom"],
+        },
+        {
+          Header: "3M",
+          accessor: (d) => d["threeMonth"],
+        },
+        {
+          Header: "3M M",
+          accessor: (d) => d["threeMonthMomentom"],
+        },
+        {
+          Header: "1M",
+          accessor: (d) => d["oneMonth"],
+        },
+        {
+          Header: "1M M",
+          accessor: (d) => d["oneMonthMomentom"],
+        },
+        {
+          Header: "M Score",
+          accessor: (d) => d["momentomScore"],
         },
       ],[]);
 
@@ -123,20 +126,8 @@ const MainLayout = ({ticker}) =>
 
           setTANValue(tanPrice["Time Series (Daily)"]);
           
-          
-          setTPrice(calcJsonValue(json["Time Series (Daily)"],today));
           //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
-          setOneMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffOneMonth));
-          setThreeMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffThreeMonth));
-          setSixMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffSixMonth));
-          setOneYearPrice(calcJsonValue(json["Time Series (Daily)"],diffOneYear));
 
-          setTPrice(calcJsonValue(tanPrice["Time Series (Daily)"],today));
-          //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
-          setOneMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffOneMonth));
-          setThreeMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffThreeMonth));
-          setSixMonthPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffSixMonth));
-          setOneYearPrice(calcJsonValue(tanPrice["Time Series (Daily)"],diffOneYear));
 
           setLoading(true);
           
@@ -193,10 +184,20 @@ const MainLayout = ({ticker}) =>
         let dailyPrice = getDailyPrice(ticker);
         let todayPrice = parseFloat(calcJsonValue(dailyPrice,today)['4. close']);
         let diffOneYearPrice = parseFloat(calcJsonValue(dailyPrice,diffOneYear)['4. close']);
-        let oneYearMomentom = ((todayPrice - diffOneYearPrice)/diffOneYearPrice * 1).toFixed(2);
+        let diffSixMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffSixMonth)['4. close']);
+        let diffThreeMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffThreeMonth)['4. close']);
+        let diffOneMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffOneMonth)['4. close']);
 
-        return setTableRow(ticker,todayPrice,diffOneYearPrice,oneYearMomentom);
+
+        let oneYearMomentom = (((todayPrice - diffOneYearPrice)/diffOneYearPrice) * 1);
+        let sixMonthMomentom = (((todayPrice - diffSixMonthPrice)/diffSixMonthPrice) * 2);
+        let threeMonthMomentom = (((todayPrice - diffThreeMonthPrice)/diffThreeMonthPrice) * 4);
+        let oneMonthMomentom = (((todayPrice - diffOneMonthPrice)/diffOneMonthPrice) * 12);
+
+        let momentomScore = (oneMonthMomentom + sixMonthMomentom + threeMonthMomentom + oneMonthMomentom)/4
+        return setTableRow(ticker,todayPrice,diffOneYearPrice,oneYearMomentom.toFixed(2),diffSixMonthPrice,sixMonthMomentom.toFixed(2),diffThreeMonthPrice,threeMonthMomentom.toFixed(2),diffOneMonthPrice,oneMonthMomentom.toFixed(2),momentomScore.toFixed(2));
     }
+
 
     const getDailyPrice = (ticker) =>
     {

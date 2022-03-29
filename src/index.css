@@ -1,5 +1,6 @@
 html {
   width: 56% !important;
+  min-width: 610px;
   margin-left: 22% !important;
   margin-right: 22% !important;
   background-color: gray;

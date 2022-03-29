@@ -18,7 +18,7 @@ const MainLayout = ({ticker}) =>
 
 
   const today = new Date();
-  today.setDate(today.getDate() -3);
+  today.setDate(today.getDate()-1);
   const diffOneMonth = new Date(today);
   diffOneMonth.setMonth(today.getMonth() - 1);
   const diffThreeMonth = new Date(today);
@@ -191,8 +191,8 @@ const MainLayout = ({ticker}) =>
     const getTickerPriceValue = (ticker) =>
     {
         let dailyPrice = getDailyPrice(ticker);
-        let todayPrice = parseFloat(dailyPrice[today.toISOString().split('T')[0]]['4. close']);
-        let diffOneYearPrice = parseFloat(dailyPrice[diffOneYear.toISOString().split('T')[0]]['4. close']);
+        let todayPrice = parseFloat(calcJsonValue(dailyPrice,today)['4. close']);
+        let diffOneYearPrice = parseFloat(calcJsonValue(dailyPrice,diffOneYear)['4. close']);
         let oneYearMomentom = ((todayPrice - diffOneYearPrice)/diffOneYearPrice * 1).toFixed(2);
 
         return setTableRow(ticker,todayPrice,diffOneYearPrice,oneYearMomentom);

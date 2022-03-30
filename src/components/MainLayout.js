@@ -9,9 +9,12 @@ const MainLayout = ({ticker}) =>
   const [xleValue,setXLEValue] = useState([]);
   const [soxxValue,setSOXXValue] = useState([]);
   const [dbcValue,setDBCValue] = useState([]);
+  const [litValue,setLITValue] = useState([]);
+  const [skyyValue,setSKYYValue] = useState([]);
+  const [iclnValue,setICLNValue] = useState([]);
   const [tClosePrice,setTClosePrice] = useState([]);
   const [loading,setLoading] = useState(false);
-  const tickerArray = ['SPY','XLE','SOXX','DBC'];
+  const tickerArray = ['SPY','XLE','SOXX','DBC','SKYY','ICLN'];
 
 
 
@@ -118,6 +121,7 @@ const MainLayout = ({ticker}) =>
   //       // setTPrice(tPriceValue);
   //       // setOneMonthPrice(calcJsonValue(json["Time Series (Daily)"],diffOneMonth));
   //   }
+ 
   useEffect(()=> 
     {
         const fetchData = async() => 
@@ -146,7 +150,25 @@ const MainLayout = ({ticker}) =>
           ).json();
 
           setDBCValue(dbcPrice["Time Series (Daily)"]);
-          
+
+          // const litPrice = await (
+          //   await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=LIT&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          // ).json();
+
+          // setLITValue(litPrice["Time Series (Daily)"]);
+
+          const skyyPrice = await (
+            await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=SKYY&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          ).json();
+
+          setSKYYValue(skyyPrice["Time Series (Daily)"]);
+
+          const iclnPrice = await (
+            await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=ICLN&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          ).json();
+
+          setICLNValue(iclnPrice["Time Series (Daily)"]);
+
           //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
 
 
@@ -240,6 +262,18 @@ const MainLayout = ({ticker}) =>
           {
             return '원자재';
           }
+          // case ('LIT'):
+          // {
+          //   return '2차전지';
+          // }
+          case ('SKYY'):
+          {
+            return '클라우드';
+          }
+          case ('ICLN'):
+          {
+            return '그린 에너지';
+          }
           default :
           {
             return null;
@@ -267,6 +301,18 @@ const MainLayout = ({ticker}) =>
           {
             return dbcValue;
           }
+          // case ('LIT'):
+          // {
+          //   return litValue;
+          // }
+          case ('SKYY'):
+          {
+            return skyyValue;
+          }
+          case ('ICLN'):
+          {
+            return iclnValue;
+          }
           default :
           {
             return null;
@@ -279,7 +325,6 @@ const MainLayout = ({ticker}) =>
       {      
         setPrice(tickerArray); 
         //console.log(tClosePrice);
-        console.log(tickerValue);
         //setDataPrice(tPrice,oneMonthPrice,threeMonthPrice,sixMonthPrice,oneYearPrice);
       }
       

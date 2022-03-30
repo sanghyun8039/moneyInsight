@@ -1,19 +1,22 @@
 import React, { useState,useEffect } from 'react';
+import './MainLayout.css';
 import Table from './Table.js';
 
 
 const MainLayout = ({ticker}) =>
 {
   const [tickerValue,setTickerValue]= useState([]);
-  const [tanValue,setTANValue] = useState([]);
+  const [xleValue,setXLEValue] = useState([]);
+  const [soxxValue,setSOXXValue] = useState([]);
+  const [dbcValue,setDBCValue] = useState([]);
   const [tClosePrice,setTClosePrice] = useState([]);
   const [loading,setLoading] = useState(false);
-  const tickerArray = ['SPY','XLE'];
+  const tickerArray = ['SPY','XLE','SOXX','DBC'];
 
 
 
   const today = new Date();
-  today.setDate(today.getDate()-1);
+  today.setDate(today.getDate()- 1);
   const diffOneMonth = new Date(today);
   diffOneMonth.setMonth(today.getMonth() - 1);
   const diffThreeMonth = new Date(today);
@@ -34,12 +37,13 @@ const MainLayout = ({ticker}) =>
       return value[date.toISOString().split('T')[0]];
   }
 
-  const setTableRow = (tickerValue,todayPriceValue,oneYearValue,oneYearMomentomValue,sixMonthValue,sixMonthMomentomValue
+  const setTableRow = (tickerValue,sectorValue,todayPriceValue,oneYearValue,oneYearMomentomValue,sixMonthValue,sixMonthMomentomValue
     ,threeMonthValue,threeMonthMomentomValue,oneMonthValue,oneMonthMomentomValue,momentomScoreValue) =>
   {
     const setRow = 
     {
       ticker:tickerValue,
+      sector:sectorValue,
       todayPrice:todayPriceValue,
       oneYear:oneYearValue,
       oneYearMomentom:oneYearMomentomValue,
@@ -57,6 +61,10 @@ const MainLayout = ({ticker}) =>
 
       const headerCol = React.useMemo(
       () => [
+        {
+          Header: "Sector",
+          accessor: (d) => d["sector"]
+        },
         {
           Header: "Ticker",
           accessor: (d) => d["ticker"]
@@ -120,11 +128,24 @@ const MainLayout = ({ticker}) =>
               ).json();
           setTickerValue(json["Time Series (Daily)"]); 
           
-          const tanPrice = await (
+          const xlePrice = await (
             await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=XLE&outputsize=full&apikey=H65SRD1M6KH9R56U`)
           ).json();
 
-          setTANValue(tanPrice["Time Series (Daily)"]);
+          setXLEValue(xlePrice["Time Series (Daily)"]);
+
+          const soxxPrice = await (
+            await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=SOXX&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          ).json();
+
+          setSOXXValue(soxxPrice["Time Series (Daily)"]);
+          
+
+          const dbcPrice = await (
+            await fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=DBC&outputsize=full&apikey=H65SRD1M6KH9R56U`)
+          ).json();
+
+          setDBCValue(dbcPrice["Time Series (Daily)"]);
           
           //setTPrice(prevState => ({ ...prevState, '6. date': today.toISOString().split('T')[0]}));
 
@@ -182,12 +203,12 @@ const MainLayout = ({ticker}) =>
     const getTickerPriceValue = (ticker) =>
     {
         let dailyPrice = getDailyPrice(ticker);
+        let sector = getSectorTicker(ticker);
         let todayPrice = parseFloat(calcJsonValue(dailyPrice,today)['4. close']);
         let diffOneYearPrice = parseFloat(calcJsonValue(dailyPrice,diffOneYear)['4. close']);
         let diffSixMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffSixMonth)['4. close']);
         let diffThreeMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffThreeMonth)['4. close']);
         let diffOneMonthPrice = parseFloat(calcJsonValue(dailyPrice,diffOneMonth)['4. close']);
-
 
         let oneYearMomentom = (((todayPrice - diffOneYearPrice)/diffOneYearPrice) * 1);
         let sixMonthMomentom = (((todayPrice - diffSixMonthPrice)/diffSixMonthPrice) * 2);
@@ -195,9 +216,36 @@ const MainLayout = ({ticker}) =>
         let oneMonthMomentom = (((todayPrice - diffOneMonthPrice)/diffOneMonthPrice) * 12);
 
         let momentomScore = (oneMonthMomentom + sixMonthMomentom + threeMonthMomentom + oneMonthMomentom)/4
-        return setTableRow(ticker,todayPrice,diffOneYearPrice,oneYearMomentom.toFixed(2),diffSixMonthPrice,sixMonthMomentom.toFixed(2),diffThreeMonthPrice,threeMonthMomentom.toFixed(2),diffOneMonthPrice,oneMonthMomentom.toFixed(2),momentomScore.toFixed(2));
+
+        return setTableRow(ticker,sector,todayPrice,diffOneYearPrice,oneYearMomentom.toFixed(2),diffSixMonthPrice,sixMonthMomentom.toFixed(2),diffThreeMonthPrice,threeMonthMomentom.toFixed(2),diffOneMonthPrice,oneMonthMomentom.toFixed(2),momentomScore.toFixed(2));
     }
 
+    const getSectorTicker = (ticker) =>
+    {
+      switch(ticker)
+      {
+        case ('SPY'):
+          {
+            return 'S&P500';
+          }
+          case ('XLE'):
+          {
+            return '석유';
+          }
+          case ('SOXX'):
+          {
+            return '반도체';
+          }
+          case ('DBC'):
+          {
+            return '원자재';
+          }
+          default :
+          {
+            return null;
+          }
+      }
+    }
 
     const getDailyPrice = (ticker) =>
     {
@@ -209,7 +257,15 @@ const MainLayout = ({ticker}) =>
           }
           case ('XLE'):
           {
-            return tanValue;
+            return xleValue;
+          }
+          case ('SOXX'):
+          {
+            return soxxValue;
+          }
+          case ('DBC'):
+          {
+            return dbcValue;
           }
           default :
           {
@@ -243,7 +299,7 @@ const MainLayout = ({ticker}) =>
   return (
     <>
       <div>
-        {/* <Table columns={columns} data={data} /> */}
+        <h2 className='date'>today : {today.toISOString().split('T')[0]}</h2>
         <Table columns={headerCol} data={tClosePrice} />
       </div>
     </>
